@@ -1,6 +1,10 @@
 package com.maiml.mgankio.module.main;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
 
@@ -10,11 +14,21 @@ import com.maiml.mgankio.bean.GankIoBean;
 import com.maiml.mgankio.http.di.DataManager;
 import com.maiml.mgankio.http.rx.callback.SubscriberOnNextListener;
 import com.maiml.mgankio.http.rx.subscribe.NormalSubscriber;
+import com.maiml.mgankio.utils.ImageUtil;
 import com.maiml.mgankio.utils.LogUtil;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.util.List;
 
 import javax.inject.Inject;
+
+import rx.Observable;
+import rx.Observer;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by maimingliang on 2017/1/6.
@@ -86,6 +100,60 @@ public class MainPresenter implements MainContract.Presenter{
             mView.enableFabButton();
             mView.stopBannerLoadingAnim();
         }
+    }
+
+    @Override
+    public void saveImg(final Drawable drawable) {
+        if (drawable == null) {
+            mView.showSaveImgInfo("图片为空，不能保存");
+            return;
+        }
+        RxPermissions rxPermissions = new RxPermissions((Activity) mContext);
+        Subscription requestPermissionSubscription = rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean aBoolean) {
+                        if (aBoolean) {
+                            saveImageToGallery(ImageUtil.drawableToBitmap(drawable));
+                        } else {
+                            mView.showSaveImgInfo("需要权限才能保存妹子");
+                        }
+                    }
+                });
+
+
+
+    }
+
+    private void saveImageToGallery(final Bitmap bitmap) {
+        Subscription subscription = Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                boolean isSaveSuccess = ImageUtil.saveImageToGallery(mContext, bitmap);
+                subscriber.onNext(isSaveSuccess);
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Boolean isSaveSuccess) {
+                        if (isSaveSuccess) {
+                            mView.showSaveImgInfo("图片保存成功");
+                        } else {
+                            mView.showSaveImgInfo("图片保存失败");
+                        }
+                    }
+                });
+
     }
 
     @Override

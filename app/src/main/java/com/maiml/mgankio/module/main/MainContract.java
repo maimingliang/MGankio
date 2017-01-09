@@ -1,5 +1,6 @@
 package com.maiml.mgankio.module.main;
 
+import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v7.graphics.Palette;
 
@@ -27,6 +28,10 @@ public interface MainContract {
         void setAppBarLayoutColor(int appBarLayoutColor);
 
         void setFabButtonColor(int color);
+
+        void showSaveImgInfo(String msg);
+
+
     }
 
     interface Presenter extends BasePresenter{
@@ -36,6 +41,8 @@ public interface MainContract {
         void getBanner(final boolean isRandom);
 
         void setThemeColor(@Nullable Palette palette);
+
+        void saveImg(Drawable drawable);
     }
 
 }

@@ -4,7 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -20,8 +23,10 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -38,12 +43,14 @@ import com.maiml.mgankio.module.home.MeiZhiFragment;
 import com.maiml.mgankio.module.main.di.DaggerMainComponent;
 import com.maiml.mgankio.module.main.di.MainModule;
 import com.maiml.mgankio.utils.DeviceUtil;
+import com.maiml.mgankio.utils.LogUtil;
 import com.maiml.mgankio.utils.MDTintUtil;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 
 public class MainActivity extends BaseActivity implements MainContract.View{
 
@@ -143,6 +150,11 @@ public class MainActivity extends BaseActivity implements MainContract.View{
         MDTintUtil.setTint(mFabHomeRandom, color);
     }
 
+    @Override
+    public void showSaveImgInfo(String msg) {
+        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+    }
+
     private enum CollapsingToolbarLayoutState {
         EXPANDED, // 完全展开
         COLLAPSED, // 折叠
@@ -185,6 +197,40 @@ public class MainActivity extends BaseActivity implements MainContract.View{
        startBannerAnim();
 
     }
+
+    @OnLongClick(R.id.iv_home_banner)
+    public boolean bannerLongClick() {
+        if (!isBannerBig) {
+            return false;
+        }
+
+//        LogUtil.d("long click");
+        showSaveMeiziDialog();
+//        mMainPresenter.saveImg(mIvHomeBanner.getDrawable());
+        return true;
+    }
+
+
+    private void showSaveMeiziDialog() {
+
+        final AlertDialog dlg = new AlertDialog.Builder(mContext).create();
+        dlg.setCanceledOnTouchOutside(true);
+        dlg.show();
+        Window window = dlg.getWindow();
+        window.setContentView(R.layout.dialog_social_main);
+        TextView tvSaveImg = (TextView) window.findViewById(R.id.tv_content1);
+
+        tvSaveImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mMainPresenter.saveImg(mIvHomeBanner.getDrawable());
+                dlg.cancel();
+            }
+        });
+
+    }
+
     private void startBannerAnim() {
         final CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) mAppbar.getLayoutParams();
         ValueAnimator animator;
