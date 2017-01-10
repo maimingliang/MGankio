@@ -1,6 +1,8 @@
 package com.maiml.mgankio.module.home;
 
 
+import android.app.AlertDialog;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -9,7 +11,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.maiml.mgankio.R;
 import com.maiml.mgankio.base.BaseFragment;
@@ -74,7 +78,7 @@ public class MeiZhiFragment extends BaseFragment implements HomeContract.View, S
         LoadMoreRecyclerView loadMoreRecyclerView = new LoadMoreRecyclerView(mRecycleview);
         loadMoreRecyclerView.setOnLoadMoreListener(this);
 
-        mMeiZhiAdapter = new MeiZhiAdapter(mContext);
+        mMeiZhiAdapter = new MeiZhiAdapter(mContext,mHomePresenter);
 
         mRecycleview.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycleview.addItemDecoration(new RecycleViewDivider(mContext, LinearLayoutManager.HORIZONTAL));
@@ -108,6 +112,32 @@ public class MeiZhiFragment extends BaseFragment implements HomeContract.View, S
     public void notifyDataChanger(List<GankIoBean> list, SearchTypeEnum searchTypeEnum) {
         mMeiZhiAdapter.addOrReplaceData(list,searchTypeEnum);
         mMeiZhiAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showSaveImgDialog(final Drawable drawable) {
+
+            final AlertDialog dlg = new AlertDialog.Builder(mContext).create();
+            dlg.setCanceledOnTouchOutside(true);
+            dlg.show();
+            Window window = dlg.getWindow();
+            window.setContentView(R.layout.dialog_social_main);
+            TextView tvSaveImg = (TextView) window.findViewById(R.id.tv_content1);
+
+            tvSaveImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    mHomePresenter.saveImg(drawable);
+                    dlg.cancel();
+                }
+            });
+
+    }
+
+    @Override
+    public void showSaveImgInfo(String msg) {
+
     }
 
     @Override

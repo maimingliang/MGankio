@@ -1,5 +1,6 @@
 package com.maiml.mgankio.module.home;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -111,18 +112,33 @@ public class CategoryFragment extends BaseFragment implements HomeContract.View,
 
     @Override
     public void showSwipLoading() {
-        mSwiperefresh.setRefreshing(true);
+        if(mSwiperefresh != null){
+            mSwiperefresh.setRefreshing(true);
+        }
     }
 
     @Override
     public void hideSwipLoading() {
-        mSwiperefresh.setRefreshing(false);
+        if(mSwiperefresh != null){
+            mSwiperefresh.setRefreshing(false);
+        }
+
     }
 
     @Override
     public void notifyDataChanger(List<GankIoBean> list, SearchTypeEnum searchTypeEnum) {
         mCategoryAdapter.addOrReplaceData(list,searchTypeEnum);
         mCategoryAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showSaveImgDialog(Drawable drawable) {
+
+    }
+
+    @Override
+    public void showSaveImgInfo(String msg) {
+
     }
 
     @Override
